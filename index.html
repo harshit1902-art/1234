@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 → Valentine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(135deg, #fbc2eb, #a6c1ee);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 1s ease;
+    overflow: hidden;
+}
+
+.container {
+    background: rgba(255,255,255,0.92);
+    padding: 40px 30px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    max-width: 420px;
+    width: 90%;
+}
+
+h1 { 
+    margin-bottom: 10px; 
+    font-size: 28px; /* Slightly smaller heading */
+}
+
+button {
+    padding: 12px 26px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+
+button:hover { transform: scale(1.05); }
+
+.refresh-btn { background: #ff7eb3; color: white; }
+.yes { background: #6dd5ed; color: white; }
+.no { background: #ff758c; color: white; position: relative; }
+
+.actions { display: flex; gap: 20px; justify-content: center; }
+
+.hidden { opacity: 0; pointer-events: none; transform: scale(0.8); }
+
+.fade { transition: opacity 1s ease, transform 1s ease; }
+
+.message { margin-top: 20px; display: none; text-align: left; }
+
+.message.show { display: block; }
+
+/* 🥰 Emoji wiggle with bigger size */
+.emoji {
+    font-size: 39px; /* Increased emoji size */
+    margin-bottom: 10px;
+    animation: wiggle 2s infinite ease-in-out;
+}
+
+@keyframes wiggle {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+    75% { transform: rotate(-3deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* Hearts canvas */
+canvas { position: fixed; top: 0; left: 0; pointer-events: none; }
+
+</style>
+</head>
+
+<body>
+
+<canvas id="hearts"></canvas>
+
+<div class="container">
+
+    <!-- 404 Screen -->
+    <div id="errorScreen">
+        <h1>404</h1>
+        <p>Oops! Page Not Found</p>
+        <button class="refresh-btn" id="refresh">Refresh</button>
+    </div>
+
+    <!-- Valentine Screen -->
+    <div id="valentineScreen" class="hidden fade">
+
+        <div class="emoji">🥹👉🏻👈🏻</div>
+        <h1>Will you be my Valentine?</h1>
+
+        <div class="actions fade" id="buttons">
+            <button class="yes" id="yesBtn">YES</button>
+            <button class="no" id="noBtn">NO</button>
+        </div>
+
+        <div class="message" id="agreement">
+            <strong>By clicking YES you agree to:</strong>
+            <ul>
+                <li>Unlimited cuddles</li>
+                <li>Hug on demand, anytime, anywhere</li>
+                <li>Sharing chocolate and ice cream forever</li>
+            </ul>
+            <p><strong>Effective immediately! 🚀</strong></p>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const refresh = document.getElementById('refresh');
+const errorScreen = document.getElementById('errorScreen');
+const valentineScreen = document.getElementById('valentineScreen');
+const yesBtn = document.getElementById('yesBtn');
+const noBtn = document.getElementById('noBtn');
+const buttons = document.getElementById('buttons');
+const agreement = document.getElementById('agreement');
+const body = document.body;
+
+/* Screen transition */
+refresh.onclick = () => {
+    errorScreen.classList.add('hidden');
+    setTimeout(() => {
+        errorScreen.style.display = "none";
+        valentineScreen.classList.remove('hidden');
+    }, 500);
+};
+
+/* YES click */
+yesBtn.onclick = () => {
+    // Hide emoji
+    document.querySelector('.emoji').style.display = 'none';
+
+    // Change heading text
+    valentineScreen.querySelector('h1').textContent = "Yayyy!!! 🥳";
+
+    agreement.classList.add('show');
+    buttons.classList.add('hidden');
+    startHearts(7000);
+    playRomanticMusic();
+};
+
+/* NO click behavior */
+noBtn.onclick = () => {
+    noBtn.style.position = "fixed";
+    noBtn.style.left = Math.random() * (window.innerWidth - 120) + "px";
+    noBtn.style.top = Math.random() * (window.innerHeight - 60) + "px";
+
+    body.style.background = `linear-gradient(135deg,
+        hsl(${Math.random()*360}, 80%, 75%),
+        hsl(${Math.random()*360}, 80%, 85%)
+    )`;
+};
+
+/* Hearts animation */
+const canvas = document.getElementById('hearts');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+function startHearts(duration) {
+    const end = Date.now() + duration;
+    let hearts = Array.from({length: 80}, () => ({
+        x: Math.random() * canvas.width,
+        y: canvas.height + Math.random() * 200,
+        size: Math.random() * 20 + 10,
+        speed: Math.random() * 1.5 + 0.5
+    }));
+
+    function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        hearts.forEach(h => {
+            ctx.font = `${h.size}px serif`;
+            ctx.fillText("💖", h.x, h.y);
+            h.y -= h.speed;
+            if (h.y < -50) h.y = canvas.height + 50;
+        });
+        if (Date.now() < end) requestAnimationFrame(draw);
+        else ctx.clearRect(0,0,canvas.width,canvas.height);
+    }
+    draw();
+}
+
+/* Soft, romantic music */
+function playRomanticMusic() {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const ctx = new AudioContext();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.03; // very soft
+    gain.connect(ctx.destination);
+
+    const notes = [261.63, 329.63, 392, 440, 392, 329.63, 261.63, 196]; // C-E-G-A-G-E-C-G
+    let time = ctx.currentTime;
+
+    notes.forEach(freq => {
+        const osc = ctx.createOscillator();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        osc.start(time);
+        osc.stop(time + 0.8);
+        time += 0.8;
+    });
+
+    gain.gain.linearRampToValueAtTime(0.001, time + 0.5);
+    setTimeout(() => ctx.close(), 7000); // play ~7s romantic melody
+}
+
+window.onresize = () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+};
+</script>
+
+</body>
+</html>
+
